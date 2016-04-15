@@ -33,31 +33,35 @@ func delay(seconds seconds: Double, completion:()->()) {
 
 class ViewController: UIViewController, UITextFieldDelegate {
     
-    // MARK: IB outlets
+    //	MARK: Properties - Subviews
     
-    @IBOutlet var loginButton: UIButton!
-    @IBOutlet var heading: UILabel!
-    @IBOutlet var username: UITextField!
-    @IBOutlet var password: UITextField!
+    @IBOutlet private var loginButton: UIButton!
+    @IBOutlet private var heading: UILabel!
+    @IBOutlet private var username: UITextField!
+    @IBOutlet private var password: UITextField!
     
-    @IBOutlet var cloud1: UIImageView!
-    @IBOutlet var cloud2: UIImageView!
-    @IBOutlet var cloud3: UIImageView!
-    @IBOutlet var cloud4: UIImageView!
-    
-    // MARK: further UI
-    
-    let spinner = UIActivityIndicatorView(activityIndicatorStyle: .WhiteLarge)
-    let status = UIImageView(image: UIImage(named: "banner"))
-    let label = UILabel()
-    let messages = ["Connecting ...", "Authorizing ...", "Sending credentials ...", "Failed"]
+    @IBOutlet private var cloud1: UIImageView!
+    @IBOutlet private var cloud2: UIImageView!
+    @IBOutlet private var cloud3: UIImageView!
+    @IBOutlet private var cloud4: UIImageView!
+    private let spinner = UIActivityIndicatorView(activityIndicatorStyle: .WhiteLarge)
+    private let status = UIImageView(image: UIImage(named: "banner"))
+    private let label = UILabel()
     
     //	MARK: Properties - State
     
+    private let messages = ["Connecting ...", "Authorizing ...", "Sending credentials ...", "Failed"]
     private var statusPosition = CGPoint.zero
     private var spinnerPosition = CGPoint.zero
     private var loginButtonFrame = CGRect.zero
     private var loginButtonBackgroundColor = UIColor.blackColor()
+    private lazy var flyRightAnimation: CABasicAnimation = {
+        let flyRight = CABasicAnimation(keyPath: "position.x")
+        flyRight.fromValue = -self.view.bounds.width / 2.0
+        flyRight.toValue = self.view.bounds.width / 2.0
+        flyRight.duration = 0.5
+        return flyRight
+    }()
     
     // MARK: view controller methods
     
@@ -92,10 +96,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-
-        heading.center.x -= view.bounds.width
-        username.center.x -= view.bounds.width
-        password.center.x -= view.bounds.width
         
         loginButton.center.y += 30.0
         loginButton.alpha = 0.0
@@ -109,8 +109,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
+        animateFieldEntry()
+        
         UIView.animateWithDuration(0.5, delay: 3.0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.0, options: [], animations: {
-            self.heading.center.x += self.view.bounds.width
             self.cloud1.alpha = 1.0
             self.cloud4.alpha = 1.0
             }, completion: { _ in
@@ -119,14 +120,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
         })
         
         UIView.animateWithDuration(0.5, delay: 3.3, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.0, options: [], animations: {
-            self.username.center.x += self.view.bounds.width
             self.cloud2.alpha = 1.0
             }, completion: { _ in
                 self.animateCloud(self.cloud2)
         })
         
         UIView.animateWithDuration(0.5, delay: 3.4, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.0, options: [], animations: {
-            self.password.center.x += self.view.bounds.width
             self.cloud3.alpha = 1.0
             }, completion: { _ in
                 self.animateCloud(self.cloud3)
@@ -140,7 +139,17 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    // MARK: further methods
+    //	MARK: Animation
+    
+    private func animateFieldEntry() {
+        flyRightAnimation.fillMode = kCAFillModeBackwards
+        flyRightAnimation.beginTime = CACurrentMediaTime() + 3.0
+        heading.layer.addAnimation(flyRightAnimation, forKey: nil)
+        flyRightAnimation.beginTime += 0.3
+        username.layer.addAnimation(flyRightAnimation, forKey: nil)
+        flyRightAnimation.beginTime += 0.1
+        password.layer.addAnimation(flyRightAnimation, forKey: nil)
+    }
     
     private func animateCloud(cloud: UIImageView) {
         //  it should take a cloud 10 seconds to move across the enitre width of the screen
@@ -208,6 +217,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
                 
         })
     }
+    
+    //	MARK: Actions
     
     @IBAction func login() {
         view.endEditing(true)

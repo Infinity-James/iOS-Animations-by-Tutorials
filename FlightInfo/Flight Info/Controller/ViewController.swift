@@ -85,16 +85,17 @@ class ViewController: UIViewController {
     
     func changeFlightDataTo(data: FlightData, animated: Bool = false) {
         
-        // populate the UI with the next flight's data
-        summary.text = data.summary
-        flightStatus.text = data.flightStatus
-        
         if animated {
+            planeDepart()
+            
+            updateSummary(data.summary)
+            
             fadeImageView(bgImageView, toImage: UIImage(named: data.weatherImageName)!, showEffects: data.showWeatherEffects)
             let direction: AnimationDirection = data.isTakingOff ? .Positive : .Negative
             
             cubeTransition(label: flightNr, toText: data.flightNr, inDirection: direction)
             cubeTransition(label: gateNr, toText: data.gateNr, inDirection: direction)
+            cubeTransition(label: flightStatus, toText: data.flightStatus, inDirection: direction)
             
             let offsetDeparting = CGPoint(x: CGFloat(direction.rawValue) * 80.0, y: 0.0)
             let offsetArriving = CGPoint(x: 0.0, y: CGFloat(direction.rawValue) * 50.0)
@@ -103,11 +104,14 @@ class ViewController: UIViewController {
             moveLabel(arrivingTo, toText: data.arrivingTo, withOffset: offsetArriving)
             
         } else {
+            summary.text = data.summary
+            
             bgImageView.image = UIImage(named: data.weatherImageName)
             snowView.hidden = !data.showWeatherEffects
             
             flightNr.text = data.flightNr
             gateNr.text = data.gateNr
+            flightStatus.text = data.flightStatus
             
             departingFrom.text = data.departingFrom
             arrivingTo.text = data.arrivingTo
@@ -177,7 +181,50 @@ class ViewController: UIViewController {
                 label.alpha = 1.0
                 label.transform = CGAffineTransformIdentity
         })
+    }
+    
+    private func planeDepart() {
+        let originalCenter = planeImage.center
         
+        UIView.animateKeyframesWithDuration(1.5, delay: 0.0, options: [], animations: {
+            UIView.addKeyframeWithRelativeStartTime(0.0, relativeDuration: 0.25) {
+                self.planeImage.center.x += 80.0
+                self.planeImage.center.y -= 10.0
+            }
+            UIView.addKeyframeWithRelativeStartTime(0.1, relativeDuration: 0.4) {
+                self.planeImage.transform = CGAffineTransformMakeRotation(CGFloat(-M_PI_4 / 2.0))
+            }
+            UIView.addKeyframeWithRelativeStartTime(0.25, relativeDuration: 0.25) {
+                self.planeImage.center.x += 100.0
+                self.planeImage.center.y -= 50.0
+                self.planeImage.alpha = 0.0
+            }
+            UIView.addKeyframeWithRelativeStartTime(0.51, relativeDuration: 0.01) {
+                self.planeImage.transform = CGAffineTransformIdentity
+                self.planeImage.center = CGPoint(x: 0.0, y: originalCenter.y)
+            }
+            UIView.addKeyframeWithRelativeStartTime(0.55, relativeDuration: 0.45) {
+                self.planeImage.alpha = 1.0
+                self.planeImage.center = originalCenter
+            }
+            }, completion: nil)
+    }
+    
+    private func updateSummary(summaryText: String) {
+        UIView.animateKeyframesWithDuration(1.0, delay: 0.0, options: [], animations: {
+            UIView.addKeyframeWithRelativeStartTime(0.0, relativeDuration: 0.48) {
+                self.summary.center.y -= 80.0
+            }
+            
+            UIView.addKeyframeWithRelativeStartTime(0.52, relativeDuration: 0.48) {
+                self.summary.center.y += 80.0
+            }
+            
+            }, completion: nil)
+        
+        delay(seconds: 0.5) {
+            self.summary.text = summaryText
+        }
     }
 }
 
