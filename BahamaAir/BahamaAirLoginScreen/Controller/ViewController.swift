@@ -55,6 +55,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
     private var spinnerPosition = CGPoint.zero
     private var loginButtonFrame = CGRect.zero
     private var loginButtonBackgroundColor = UIColor.blackColor()
+    private lazy var fadeInAnimation: CABasicAnimation = {
+        let fadeIn = CABasicAnimation(keyPath: "opacity")
+        fadeIn.fromValue = 0.0
+        fadeIn.toValue = 1.0
+        fadeIn.duration = 0.5
+        return fadeIn
+    }()
     private lazy var flyRightAnimation: CABasicAnimation = {
         let flyRight = CABasicAnimation(keyPath: "position.x")
         flyRight.fromValue = -self.view.bounds.width / 2.0
@@ -99,37 +106,20 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
         loginButton.center.y += 30.0
         loginButton.alpha = 0.0
-        
-        cloud1.alpha = 0.0
-        cloud2.alpha = 0.0
-        cloud3.alpha = 0.0
-        cloud4.alpha = 0.0
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
-        animateFieldEntry()
+        animateFieldsEntry()
+        animateCloudsEntry()
+        delay(seconds: 3.5) {
+            self.animateCloud(self.cloud1)
+            self.animateCloud(self.cloud2)
+            self.animateCloud(self.cloud3)
+            self.animateCloud(self.cloud4)
+        }
         
-        UIView.animateWithDuration(0.5, delay: 3.0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.0, options: [], animations: {
-            self.cloud1.alpha = 1.0
-            self.cloud4.alpha = 1.0
-            }, completion: { _ in
-                self.animateCloud(self.cloud1)
-                self.animateCloud(self.cloud4)
-        })
-        
-        UIView.animateWithDuration(0.5, delay: 3.3, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.0, options: [], animations: {
-            self.cloud2.alpha = 1.0
-            }, completion: { _ in
-                self.animateCloud(self.cloud2)
-        })
-        
-        UIView.animateWithDuration(0.5, delay: 3.4, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.0, options: [], animations: {
-            self.cloud3.alpha = 1.0
-            }, completion: { _ in
-                self.animateCloud(self.cloud3)
-        })
         
         UIView.animateWithDuration(0.5, delay: 3.5, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.0, options: [], animations: {
             self.loginButton.center.y -= 30.0
@@ -141,7 +131,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     //	MARK: Animation
     
-    private func animateFieldEntry() {
+    private func animateFieldsEntry() {
         flyRightAnimation.fillMode = kCAFillModeBackwards
         flyRightAnimation.beginTime = CACurrentMediaTime() + 3.0
         heading.layer.addAnimation(flyRightAnimation, forKey: nil)
@@ -149,6 +139,18 @@ class ViewController: UIViewController, UITextFieldDelegate {
         username.layer.addAnimation(flyRightAnimation, forKey: nil)
         flyRightAnimation.beginTime += 0.1
         password.layer.addAnimation(flyRightAnimation, forKey: nil)
+    }
+    
+    private func animateCloudsEntry() {
+        fadeInAnimation.fillMode = kCAFillModeBackwards
+        fadeInAnimation.beginTime = CACurrentMediaTime() + 3.0
+        cloud1.layer.addAnimation(fadeInAnimation, forKey: nil)
+        fadeInAnimation.beginTime += 0.1
+        cloud2.layer.addAnimation(fadeInAnimation, forKey: nil)
+        fadeInAnimation.beginTime += 0.1
+        cloud3.layer.addAnimation(fadeInAnimation, forKey: nil)
+        fadeInAnimation.beginTime += 0.1
+        cloud4.layer.addAnimation(fadeInAnimation, forKey: nil)
     }
     
     private func animateCloud(cloud: UIImageView) {
