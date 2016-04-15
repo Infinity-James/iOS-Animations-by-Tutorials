@@ -131,6 +131,22 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     //	MARK: Animation
     
+    private func roundCorners(ofLayer layer: CALayer, toRadius radius: CGFloat) {
+        let roundCorners = CABasicAnimation(keyPath: "cornerRadius")
+        roundCorners.toValue = radius
+        roundCorners.duration = 1/3
+        layer.addAnimation(roundCorners, forKey: nil)
+        layer.cornerRadius = radius
+    }
+    
+    private func tintBackgroundColor(layer layer: CALayer, toColor color: UIColor) {
+        let tintBackground = CABasicAnimation(keyPath: "backgroundColor")
+        tintBackground.toValue = color.CGColor
+        tintBackground.duration = 0.5
+        layer.addAnimation(tintBackground, forKey: nil)
+        layer.backgroundColor = color.CGColor
+    }
+    
     private func animateFieldsEntry() {
         flyRightAnimation.fillMode = kCAFillModeBackwards
         flyRightAnimation.beginTime = CACurrentMediaTime() + 3.0
@@ -180,9 +196,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
             self.spinner.alpha = 0.0
             self.spinner.center = self.spinnerPosition
             self.loginButton.frame = self.loginButtonFrame
-            self.loginButton.backgroundColor = self.loginButtonBackgroundColor
             }, completion: nil)
         
+        tintBackgroundColor(layer: loginButton.layer, toColor: loginButtonBackgroundColor)
+        roundCorners(ofLayer: loginButton.layer, toRadius: 10.0)
     }
     
     private func displayNextMessage(atIndex index: Int) {
@@ -232,11 +249,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
         })
         
         UIView.animateWithDuration( 1/3, delay: 0.0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.0, options: [], animations: { 
-            self.loginButton.center.y += 60.0
-            self.loginButton.backgroundColor = UIColor(red: 0.85, green: 0.83, blue: 0.45, alpha: 1.0)
+            self.loginButton.center.y += 80.0
             self.spinner.center = CGPoint(x: 40.0, y: self.loginButton.frame.size.height / 2.0)
             self.spinner.alpha = 1.0
             }, completion: nil)
+        
+        let tintColor = UIColor(red: 0.85, green: 0.83, blue: 0.45, alpha: 1.0)
+        tintBackgroundColor(layer: loginButton.layer, toColor: tintColor)
+        roundCorners(ofLayer: loginButton.layer, toRadius: 25.0)
     }
     
     // MARK: UITextFieldDelegate
